@@ -1,5 +1,6 @@
 package com.example.chatapp
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -9,8 +10,8 @@ import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationC
 import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var userIdTextField : EditText
-    private lateinit var button : Button
+    private lateinit var userIdTextField: EditText
+    private lateinit var button: Button
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,12 +23,17 @@ class MainActivity : AppCompatActivity() {
 
         button.setOnClickListener {
             val userId = userIdTextField.text.toString()
-            if(user)
+            if (userId.isNotEmpty()) {
+                val intent = Intent(this@MainActivity, VideoCallActivity::class.java)
+                intent.putExtra("userId", userId)
+                startActivity(intent)
+                videocallServices(userId)
+            }
         }
     }
 
     private fun videocallServices(userID: String) {
-        val appID : Long = 931425084
+        val appID: Long = 931425084
         val appSign = "589912f4b54cd6086466e4454f1f888d2d2e340f98ba9f8e45961c4a85c6f71f"
         val application = application
         val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
@@ -36,6 +42,18 @@ class MainActivity : AppCompatActivity() {
         notificationConfig.sound = "zego_uikit_sound_call"
         notificationConfig.channelID = "CallInvitation"
         notificationConfig.channelName = "CallInvitation"
-        ZegoUIKitPrebuiltCallInvitationService.init(application, appID, appSign, userID, userID, callInvitationConfig,)
+        ZegoUIKitPrebuiltCallInvitationService.init(
+            application,
+            appID,
+            appSign,
+            userID,
+            userID,
+            callInvitationConfig,
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ZegoUIKitPrebuiltCallInvitationService.unInit()
     }
 }
